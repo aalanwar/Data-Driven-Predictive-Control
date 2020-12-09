@@ -329,7 +329,7 @@ for plotRun=1:length(projectedDims)
    for i=2:maxsteps+1
             haldy_t= plot(y_t(projectedDims{plotRun}(1),i),y_t(projectedDims{plotRun}(2),i),'+b');
 %         else
-             haldy_Pred= plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*k');
+             haldy_Pred= plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*-k');
 %         end
     end
     % handC=plot(consSet,projectedDims{plotRun},'k');
@@ -347,7 +347,7 @@ for plotRun=1:length(projectedDims)
     ti = ax.TightInset;
     left = outerpos(1) + ti(1);
     bottom = outerpos(2) + ti(2);
-    ax_width = outerpos(3) - ti(1) - ti(3)-0.04;
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
 end
@@ -385,7 +385,7 @@ for plotRun=1:length(projectedDims)
         % plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*-k');
     end    
    for i=2:N+1
-            haldy_t= plot(yoverN{i}(projectedDims{plotRun}(1)),yoverN{i}(projectedDims{plotRun}(2)),'*k');
+            haldy_t= plot(yoverN{i}(projectedDims{plotRun}(1)),yoverN{i}(projectedDims{plotRun}(2)),'*-k');
 %         else
 %             haldy_t= plot(y0(projectedDims{plotRun}(1)),y0(projectedDims{plotRun}(2)),'*-k');
 %         end

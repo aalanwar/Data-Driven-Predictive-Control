@@ -38,13 +38,14 @@ c1 = X0.Z(:,1);
 delta1 = sum(abs(X0.Z),2) - abs(c1);
 % leftLimit = c - delta;
 % rightLimit = c + delta;
-intc = interval([-4;2;1;-3;4],[-1;4;4;3;6]);
+%intc = interval([-4;2;1;-3;4],[-1;6;4;3;6]);
+intc = interval([-10;2;-10;-10;-10],[10;6;10;10;10])
 % intc = interval([-10;1;1;-5;-5],[10;4;5;5;10]);
 % intc = interval([-5;-5;-5;-5;-5],[5;5;5;5;5]);
 % intc_delta = interval([-2;2;1;-1;3]+delta1,[2;4;4;3;6]-delta1);
 %y0 = randPoint(X0&zonotope(intc_delta));
 y0 = [-3;3.5;3;-2.5;5.5];
-U = zonotope([uref-1,20-1]);
+U = zonotope([uref-1,40-1]);
 
 %noise zontope W
 %W = zonotope([zeros(dim_x,1),0.0001*ones(dim_x,1)]);
@@ -180,7 +181,7 @@ t = 1;
 
 %y0 = [-1.9;2.55;3.5;1.9;4.3];
 
-maxsteps = 40;
+maxsteps = 20;
 for timesteps = 1:maxsteps
     if timesteps == 1
         y_t(:,timesteps) = y0;
@@ -255,8 +256,8 @@ for timesteps = 1:maxsteps
             %y{i+1} == R{i+1}.center + R{i+1}.generators*beta{i}(1:genlenip1),...
             y{i+1} >= leftLimit{i},...
             y{i+1} <= rightLimit{i},...
-          %  y{i+1}   - 1.1*delta >= intc.inf,...
-          %  y{i+1}   + 1.1*delta <= intc.sup,... 
+            y{i+1}   - 2*delta >= intc.inf,...
+            y{i+1}   + 2*delta <= intc.sup,... 
           %   y{i+1}   - delta >= intc.inf,...
           %  y{i+1}   + delta <= intc.sup,...
            %  y{i+1}   >= intc.inf,...
@@ -449,6 +450,32 @@ legend('$|| y(k) - r_y(k) ||$','Interpreter','latex')
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
 %%---------------------------------------------------------------------
+%constrain on y2
+
+figure 
+hold on
+box on;
+handy= plot(y_t(2,:),'k');
+handcon = plot(intc.inf(2)*ones(size(y_t(2,:))),'k--');
+handcon = plot(intc.sup(2)*ones(size(y_t(2,:))),'k--');
+axis([0,40 ,min(min(y_t(2,:)),intc.sup(2))-1, intc.sup(2)+1]);
+xlabel('Time step $k$','Interpreter','latex')
+legend([handy,handcon],'$y_2(k)$','$r_2(k)$','Interpreter','latex');
+    ax = gca;
+    ax.FontSize = 12;
+    %set(gcf, 'Position',  [50, 50, 800, 400])
+    ax = gca;
+    outerpos = ax.OuterPosition;
+    ti = ax.TightInset;
+    left = outerpos(1) + ti(1);
+    bottom = outerpos(2) + ti(2);
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+    ax_height = outerpos(4) - ti(2) - ti(4);
+    ax.Position = [left bottom ax_width ax_height];
+
+
+
+%%-----------------------------------------------------------------------
 % % set number of steps in analysis
 % totalsteps = 8;
 % Y_model = cell(totalsteps+1,1);

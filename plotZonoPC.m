@@ -1,6 +1,6 @@
-clear
-
-load('run100iterworkspace.mat')
+clear all
+close all
+load('workspaces/run100iterworkspace.mat')
 
 
 
@@ -22,12 +22,12 @@ for plotRun=1:length(projectedDims)
     % handC=plot(consSet,projectedDims{plotRun},'k');
     legend([handR,haldy_t,haldy_Pred],'Reachable set $\mathcal{R}_k$','System trajectory $y(k)$','$y$-pred$(k)$','Interpreter','latex')
     % label plot
-    xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
-    ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    xlabel(['$y_{',num2str(projectedDims{plotRun}(1)),'}$'],'Interpreter','latex');
+    ylabel(['$y_{',num2str(projectedDims{plotRun}(2)),'}$'],'Interpreter','latex');
     
     
     ax = gca;
-    ax.FontSize = 16;
+    ax.FontSize = 18;
     %set(gcf, 'Position',  [50, 50, 800, 400])
     ax = gca;
     outerpos = ax.OuterPosition;
@@ -80,19 +80,19 @@ for plotRun=1:length(projectedDims)
     % handC=plot(consSet,projectedDims{plotRun},'k');
     legend([handR,haldy_t],'Reachable set $\mathcal{R}_k$','$y$-pred$(k)$','Interpreter','latex')
     % label plot
-    xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
-    ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    xlabel(['$y_{',num2str(projectedDims{plotRun}(1)),'}$'],'Interpreter','latex');
+    ylabel(['$y_{',num2str(projectedDims{plotRun}(2)),'}$'],'Interpreter','latex');
     
     
     ax = gca;
-    ax.FontSize = 16;
+    ax.FontSize = 18;
     %set(gcf, 'Position',  [50, 50, 800, 400])
     ax = gca;
     outerpos = ax.OuterPosition;
     ti = ax.TightInset;
     left = outerpos(1) + ti(1);
     bottom = outerpos(2) + ti(2);
-    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.02;
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
 end

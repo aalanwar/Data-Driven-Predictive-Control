@@ -21,7 +21,7 @@ sys_c = ss(A,B_ss,C,D);
 samplingtime = 0.05;
 sys_d = c2d(sys_c,samplingtime);
 initpoints =1;
-steps = 300;
+steps = 600;
 totalsamples = initpoints*steps;
 %% initial set and input
 uref = 8;    
@@ -31,8 +31,13 @@ ref = inv(eye(5)-sys_d.A)*sys_d.B*uref;
 %X0 = zonotope([ones(dim_x,1),0.1*diag(ones(dim_x,1))]);
 %U = zonotope([8,0.0001]);
 X0 = zonotope([ref-2,25*diag(ones(dim_x,1))]);
-y0 = randPoint(X0);
-U = zonotope([uref-1,20-1]);
+intc = interval([-10;1.9;-10;-10;-10],[10;10;10;10;10]);
+% intc = interval([-10;1;1;-5;-5],[10;4;5;5;10]);
+% intc = interval([-5;-5;-5;-5;-5],[5;5;5;5;5]);
+% intc_delta = interval([-2;2;1;-1;3]+delta1,[2;4;4;3;6]-delta1);
+%y0 = randPoint(X0&zonotope(intc_delta));
+y0 = [-2;4;3;-2.5;5.5];
+U = zonotope([uref-1,40-1]);
 
 %noise zontope W
 %W = zonotope([zeros(dim_x,1),0.0001*ones(dim_x,1)]);
@@ -156,7 +161,7 @@ intAB1.inf <= [sys_d.A,sys_d.B]
 
 %% Compute MPC problem
 %Cost matrices
-N = 6;
+N = 3;
 Qy = 1e3*eye(5); %define output cost matrix
 Qu = 0.001*eye(1);%control cost matrix
 
@@ -168,11 +173,12 @@ t = 1;
 
 %y0 = [-1.9;2.55;3.5;1.9;4.3];
 
-maxsteps = 100;
+maxsteps = 40;
 chosedtimestep = 10;
 for timesteps = 1:maxsteps
     if timesteps == 1
         y_t(:,timesteps) = y0;
+        y_t_model(:,timesteps) = y0;
         YPred(:,1) = y0;
     end
 %     else
@@ -188,12 +194,14 @@ for timesteps = 1:maxsteps
     beta = sdpvar((zono_order*5+1)*ones(1,N),ones(1,N));
     beta_u = sdpvar;
     alpha_u = sdpvar*ones(1,N); 
-    alpha_w = sdpvar(1,N+1);
-    alpha_v = sdpvar(1,N+1);
-    alpha_av = sdpvar(1,N+1);
+    alpha_w = sdpvar(1*ones(1,N+1),ones(1,N+1));
+    alpha_v = sdpvar(1*ones(1,N+1),ones(1,N+1));
+    alpha_av = sdpvar(1*ones(1,N+1),ones(1,N+1));
     alpha_w_2 = sdpvar(1,N+1);
     R={};
     R{1} = zonotope([y_t(:,timesteps)]);
+    sinf = sdpvar(5*ones(1,N+1),ones(1,N+1));
+    ssup = sdpvar(5*ones(1,N+1),ones(1,N+1));
     
     Constraints = [y_t(:,timesteps) == y{1}];%,...
                 % y{1}+alpha_w_2(1) * W.generators >= intc.inf,...
@@ -242,8 +250,19 @@ for timesteps = 1:maxsteps
             %beta_u <= 1;
             %y{i+1} == sys_d.A *y{i} + sys_d.B*u{i},...
             %y{i+1} == R{i+1}.center + R{i+1}.generators*beta{i}(1:genlenip1),...
-            y{i+1}+ alpha_v(i) * V.generators >= leftLimit{i},...
-            y{i+1}+ alpha_v(i) * V.generators <= rightLimit{i},...
+            y{i+1} - sinf{i} == leftLimit{i},...
+            y{i+1} + ssup{i} == rightLimit{i},...
+            y{i+1}   - sinf{i} >= intc.inf,...
+            y{i+1}   + ssup{i} <= intc.sup,...   
+           
+           
+           
+%            y{i+1} - sinf{i} == leftLimit{i},...
+%             y{i+1} + ssup{i} == rightLimit{i},...
+%            y{i+1}   - 2*delta >= intc.inf,...
+%            y{i+1}   + 2*delta <= intc.sup,... 
+           sinf{i} >= zeros(5,1),...
+           ssup{i} >= zeros(5,1),...
     %        y{i+1}    >= intc.inf,...
     %        y{i+1}    <= intc.sup,... 
            % y{i+1}+ (alpha_w_2(i) * W.generators) + alpha_v(i) * V.generators + alpha_av(i) * AV.generators  >= intc.inf,...
@@ -256,8 +275,8 @@ for timesteps = 1:maxsteps
 %             alpha_w_2(i) >= -1, ...
 %             alpha_w(i) <= 1 , ...
 %             alpha_w(i) >= -1,...
-            alpha_v(i) <= 1 , ...
-            alpha_v(i) >= -1,...
+%             alpha_v(i) <= 1 , ...
+%             alpha_v(i) >= -1,...
 %             alpha_av(i) <= 1 , ...
 %             alpha_av(i) >= -1,...            
             ];
@@ -279,8 +298,11 @@ for timesteps = 1:maxsteps
     YPred(:,timesteps+1) = double(y{2});
     %y11(:,timesteps) = double(y{1});
     norm(YPred(:,timesteps)-ref,2);
-    xxx=11;
+
     
+     %% ------------------------------------------------------------------------
+ 
+ 
     
     Rplotall{timesteps}= zonotope([ double(R{2}.center), double(R{2}.generators)]);
     %%  ploting
@@ -295,25 +317,95 @@ for timesteps = 1:maxsteps
             end
         end
     end
-%     for plotRun=1:length(projectedDims)
-%         figure; hold on;
-%         for i=1:N+1
-%           handR=  plot(Rint{i},projectedDims{plotRun},'r');
-%         end
-%          handC=plot(consSet,projectedDims{plotRun},'k');
-%         legend([handR,handC],'R','constrain')
-%         % label plot
-%         xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
-%         ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
-%     end
-
-    uPred_ = double(u{1}) + double(alpha_u(1))*U.generators;
+ %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+     u_model = sdpvar(1*ones(1,N),ones(1,N));
+    y_model = sdpvar(5*ones(1,N+1),ones(1,N+1));
+      Constraints = [y_t_model(:,timesteps) == y_model{1}];
+     for i = 1:N
+% %         if i>1
+% %             R{i}= and(R{i},consSet,'averaging');
+% %         end
+%         %card_cen = [y{i};u{i}];
+%         card_cen = [R{i}.center;u{i}];
+%         genleni = size(R{i}.generators,2);
+%         card_zono = zonotope([card_cen,[R{i}.generators;zeros(1,genleni)]]);
+%         %R{i+1} = AB * (cartesianProduct(R{i}, zonotope([u{i},0]) )) +W_sdp;
+%         ABcard = intervalMatrix(AB)* card_zono;
+%          R{i+1} = zonotope([ABcard.center,[ABcard.generators,W.generators,V.generators,AV.generators]]);%AB * card_zono + W_sdp;
+%         %convert R to interval
+%         %extract center
+%         %R{i+1}= and(R{i+1},consSet,'averaging');
+%         c = R{i+1}.Z(:,1);
+%         
+%         %determine left and right limit
+%         delta = sum(abs(R{i+1}.Z),2) - abs(c);
+%         leftLimit{i} = c - delta;
+%         rightLimit{i} = c + delta;
+%         
+%         
+%         genlenip1 = length(R{i+1}.generators);
+        Constraints = [Constraints,...
+           %  y{i+1} <= 100,...
+          %   y{i+1} >= -100,...
+            u_model{i} == U.center + alpha_u(i) * U.generators,...
+       %      u{i} >= 8,...
+            % W_sdp.center == zeros(dim_x,1);
+            % W_sdp.generators == 0.005*ones(dim_x,1);
+            %u{i} == U.center + U.generators*beta_u;
+            %beta_u >= -1;
+            %beta_u <= 1;
+            y_model{i+1} - sinf{i} == sys_d.A *y_model{i} + sys_d.B*u_model{i} + alpha_w{i} * W.generators + (alpha_v{i} * V.generators) - (alpha_av{i} * AV.generators) ,...
+            y_model{i+1} + ssup{i} == sys_d.A *y_model{i} + sys_d.B*u_model{i} + alpha_w{i} * W.generators + (alpha_v{i} * V.generators) - (alpha_av{i} * AV.generators),...
+            alpha_u(i) <= 1 , ...
+            alpha_u(i) >= -1, ...
+           y_model{i+1}   - sinf{i} >= intc.inf ,...
+           y_model{i+1}   + ssup{i} <= intc.sup,... 
+           sinf{i} >= zeros(5,1),...
+           ssup{i} >= zeros(5,1),...
+           %             alpha_w_2(i) <= 1 , ...
+%             alpha_w_2(i) >= -1, ...
+             alpha_w{i} <= 1 , ...
+             alpha_w{i} >= -1,...
+            alpha_v{i} <= 1 , ...
+            alpha_v{i} >= -1,...
+             alpha_av{i} <= 1 , ...
+             alpha_av{i} >= -1,...            
+            ];
+    end
     
-    uPred_final(timesteps) = uPred_;  
+    %pinv(sys_d.B)*(eye(5)-sys_d.A)*[1;0;0;0;0]
+
+    
+    Cost=0;
+    for i=1:N
+        Cost = Cost + (y_model{i+1}-ref)'*Qy*(y_model{i+1}-ref)+ (u_model{i}-uref)'*Qu*(u_model{i}-uref);
+    end
+%    Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref);
+    options = sdpsettings('verbose',0,'solver','mosek');
+    Problem = optimize(Constraints,Cost,options)
+    Objective = double(Cost);
+    uPred_model(timesteps) = double(u_model{1})
+    %double(alpha_u(1));
+    YPred_model(:,timesteps+1) = double(y_model{2});
+    %y11(:,timesteps) = double(y{1});
+    norm(YPred_model(:,timesteps)-ref,2);
+ 
+ 
+ 
+
+
+
+%     uPred_ = double(u{1}) + double(alpha_u(1))*U.generators;
+%     
+%     uPred_final(timesteps) = uPred_;  
     w_point = randPoint(W);
     v_point = randPoint(V);
     y_t(:,timesteps+1) = sys_d.A * y_t(:,timesteps) + sys_d.B * uPred(timesteps) + w_point +v_point - sys_d.A *v_point;
+    y_t_model(:,timesteps+1) = sys_d.A * y_t_model(:,timesteps) + sys_d.B * uPred_model(timesteps) + w_point +v_point - sys_d.A *v_point;
+
     yt2ref(timesteps)= norm(y_t(:,timesteps)-ref,2)
+    yt2ref_model(timesteps)= norm(y_t_model(:,timesteps)-ref,2)
     halt = 1;
 end
 
@@ -329,14 +421,16 @@ for plotRun=1:length(projectedDims)
    for i=2:maxsteps+1
             haldy_t= plot(y_t(projectedDims{plotRun}(1),i),y_t(projectedDims{plotRun}(2),i),'+b');
 %         else
-             haldy_Pred= plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*-k');
+             haldy_Pred= plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*k');
 %         end
     end
     % handC=plot(consSet,projectedDims{plotRun},'k');
     legend([handR,haldy_t,haldy_Pred],'Reachable set $\mathcal{R}_k$','System trajectory $y(k)$','$y$-pred$(k)$','Interpreter','latex')
     % label plot
-    xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
-    ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    %xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
+    %ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    xlabel(['$y_{',num2str(projectedDims{plotRun}(1)),'}$'],'Interpreter','latex');
+    ylabel(['$y_{',num2str(projectedDims{plotRun}(2)),'}$'],'Interpreter','latex');
     
     
     ax = gca;
@@ -347,7 +441,7 @@ for plotRun=1:length(projectedDims)
     ti = ax.TightInset;
     left = outerpos(1) + ti(1);
     bottom = outerpos(2) + ti(2);
-    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.04;
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
 end
@@ -358,12 +452,14 @@ end
 
 figure
 box on;
-han_pred=plot(uPred,'b*-');
 hold on
-han_uref=plot(uref*ones(size(uPred)),'k-')
+han_pred=plot(uPred,'b*-');
+han_pred_model=plot(uPred_model,'r+-');
+
+han_uref=plot(uref*ones(size(uPred)),'k-');
 ax = gca;
 xlabel('Time step $k$','Interpreter','latex')
-legend([han_pred,han_uref],'Control input $u^*(k)$','Reference input $r_u(k)$','Interpreter','latex')
+legend([han_pred,han_pred_model,han_uref],'ZonoPC Control input $u^*(k)$','MPC Control input $u^*(k)$','Reference input $r_u(k)$','Interpreter','latex')
 ax.FontSize = 16;
 %set(gcf, 'Position',  [50, 50, 800, 400])
 ax = gca;
@@ -385,7 +481,7 @@ for plotRun=1:length(projectedDims)
         % plot(YPred(projectedDims{plotRun}(1),i),YPred(projectedDims{plotRun}(2),i),'*-k');
     end    
    for i=2:N+1
-            haldy_t= plot(yoverN{i}(projectedDims{plotRun}(1)),yoverN{i}(projectedDims{plotRun}(2)),'*-k');
+            haldy_t= plot(yoverN{i}(projectedDims{plotRun}(1)),yoverN{i}(projectedDims{plotRun}(2)),'*k');
 %         else
 %             haldy_t= plot(y0(projectedDims{plotRun}(1)),y0(projectedDims{plotRun}(2)),'*-k');
 %         end
@@ -393,12 +489,14 @@ for plotRun=1:length(projectedDims)
     % handC=plot(consSet,projectedDims{plotRun},'k');
     legend([handR,haldy_t],'Reachable set $\mathcal{R}_k$','$y$-pred$(k)$','Interpreter','latex')
     % label plot
-    xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
-    ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    %xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
+    %ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
+    xlabel(['$y_{',num2str(projectedDims{plotRun}(1)),'}$'],'Interpreter','latex');
+    ylabel(['$y_{',num2str(projectedDims{plotRun}(2)),'}$'],'Interpreter','latex');
     
     
     ax = gca;
-    ax.FontSize = 16;
+    ax.FontSize = 18;
     %set(gcf, 'Position',  [50, 50, 800, 400])
     ax = gca;
     outerpos = ax.OuterPosition;
@@ -409,7 +507,7 @@ for plotRun=1:length(projectedDims)
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
 end
-%%---------------------- plot y's ----------------------------------------%%
+%% ---------------------- plot y's ZonoPC----------------------------------------%%
 figure 
 hold on
 box on;
@@ -446,14 +544,30 @@ legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},han
     
     %legend([handy{1},handy{2},handy{3},handy{4},handy{5}],...
 %        'y1','y2','y3','y4','y5','Location','northwest');
-    
-%%-------------------------------------------------------------------- 
+
+%% ---------------------- plot y's MPC----------------------------------------%%
 figure 
 hold on
 box on;
-plot(yt2ref,'b*-')
+%for i =1:dim_x
+ handy{1}= plot(y_t_model(1,:)','r');
+ handy_pred{1}= plot(YPred_model(1,:)','-*r');
+ handy{2}= plot(y_t_model(2,:)','k');
+ handy_pred{2}= plot(YPred_model(2,:)','-*k');
+ handy{3}= plot(y_t_model(3,:)','b');
+ handy_pred{3}= plot(YPred_model(3,:)','-*b');
+ handy{4}= plot(y_t_model(4,:)','g');
+ handy_pred{4}= plot(YPred_model(4,:)','-*g');
+ handy{5}= plot(y_t_model(5,:)','m');
+ handy_pred{5}= plot(YPred_model(5,:)','m-*');
+%end
+
+% for i =1:dim_x
+%  handy_pred{i}= plot(YPred(i,:)','-*');
+% end
 xlabel('Time step $k$','Interpreter','latex')
-legend('$|| y(k) - r_y(k) ||$','Interpreter','latex')
+legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},handy{4},handy_pred{4},handy{5},handy_pred{5}],...
+        '$y_1(k)$','$y_1$-pred$(k)$','$y_2(k)$','$y_2$-pred$(k)$','$y_3(k)$','$y_3$-pred$(k)$','$y_4(k)$','$y_4$-pred$(k)$','$y_5(k)$','$y_5$-pred$(k)$','Interpreter','latex');
     ax = gca;
     ax.FontSize = 12;
     %set(gcf, 'Position',  [50, 50, 800, 400])
@@ -465,7 +579,58 @@ legend('$|| y(k) - r_y(k) ||$','Interpreter','latex')
     ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
+    
+    %legend([handy{1},handy{2},handy{3},handy{4},handy{5}],...
+%        'y1','y2','y3','y4','y5','Location','northwest');
+        
+%% -------------------------ZonoPC yt2ref------------------------------------- 
+figure 
+hold on
+box on;
+han_yt2ref_model=plot(yt2ref_model,'r+-');
+han_yt2ref=plot(yt2ref,'b*-');
+xlabel('Time step $k$','Interpreter','latex')
+legend([han_yt2ref,han_yt2ref_model],'ZonoPC $|| y(k) - r_y(k) ||$','MPC $|| y(k) - r_y(k) ||$','Interpreter','latex')
+    ax = gca;
+    ax.FontSize = 12;
+    %set(gcf, 'Position',  [50, 50, 800, 400])
+    ax = gca;
+    outerpos = ax.OuterPosition;
+    ti = ax.TightInset;
+    left = outerpos(1) + ti(1);
+    bottom = outerpos(2) + ti(2);
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+    ax_height = outerpos(4) - ti(2) - ti(4);
+    ax.Position = [left bottom ax_width ax_height];
+ 
 %%---------------------------------------------------------------------
+%constrain on y2
+
+figure 
+hold on
+box on;
+hand_y_t= plot(y_t(2,:),'b*-');
+
+hand_y_t_model= plot(y_t_model(2,:),'r+-');
+hand_YPred_t=plot(YPred(2,:),'b+-');
+
+handcon = plot(intc.inf(2)*ones(size(y_t(2,:))),'k--');
+handcon = plot(intc.sup(2)*ones(size(y_t(2,:))),'k--');
+axis([0,40 ,min(min(y_t(2,:)),intc.sup(2))-1, intc.sup(2)+1]);
+xlabel('Time step $k$','Interpreter','latex')
+legend([hand_y_t,hand_YPred_t,hand_y_t_model,handcon],'ZonoPC $y_2(k)$','ZonoPC $y_2$-pred$(k)$','MPC $y_2(k)$','constraint','Interpreter','latex');
+ax = gca;
+ax.FontSize = 12;
+%set(gcf, 'Position',  [50, 50, 800, 400])
+ax = gca;
+outerpos = ax.OuterPosition;
+ti = ax.TightInset;
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+ax_height = outerpos(4) - ti(2) - ti(4);
+ax.Position = [left bottom ax_width ax_height];
+
 % % set number of steps in analysis
 % totalsteps = 8;
 % Y_model = cell(totalsteps+1,1);

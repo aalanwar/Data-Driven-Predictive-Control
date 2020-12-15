@@ -1,9 +1,10 @@
 clear all
 close all
 
-%load('workspaces\run100_MPCZooPC.mat') %w=0.01 vfac = 0.002,300pt;
-load('workspaces\run100_MPCZooPC_w0_1_v0_2.mat') %w=0.1, v=0.2, 300pt
-%load('workspaces\run100_MPCZooPC_15pt.mat') %w=0.01 vfac = 0.002, 300pt
+load('workspaces\run100_y2withconst.mat')
+% load('workspaces\run100_y2withoutconst.mat')
+
+ 
 projectedDims = {[1 2],[3 4],[4 5]};
 for plotRun=1:length(projectedDims)
     figure('Renderer', 'painters', 'Position', [10 10 700 900]); 
@@ -29,7 +30,7 @@ for plotRun=1:length(projectedDims)
     
     
     ax = gca;
-    ax.FontSize = 22;
+    ax.FontSize = 16;
     %set(gcf, 'Position',  [50, 50, 800, 400])
     ax = gca;
     outerpos = ax.OuterPosition;
@@ -91,7 +92,7 @@ for plotRun=1:length(projectedDims)
     
     
     ax = gca;
-    ax.FontSize = 22;
+    ax.FontSize = 18;
     %set(gcf, 'Position',  [50, 50, 800, 400])
     ax = gca;
     outerpos = ax.OuterPosition;
@@ -141,40 +142,40 @@ legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},han
 %        'y1','y2','y3','y4','y5','Location','northwest');
 
 %% ---------------------- plot y's MPC----------------------------------------%%
-% figure 
-% hold on
-% box on;
-% %for i =1:dim_x
-%  handy{1}= plot(y_t_model(1,:)','r');
-%  handy_pred{1}= plot(YPred_model(1,:)','-*r');
-%  handy{2}= plot(y_t_model(2,:)','k');
-%  handy_pred{2}= plot(YPred_model(2,:)','-*k');
-%  handy{3}= plot(y_t_model(3,:)','b');
-%  handy_pred{3}= plot(YPred_model(3,:)','-*b');
-%  handy{4}= plot(y_t_model(4,:)','g');
-%  handy_pred{4}= plot(YPred_model(4,:)','-*g');
-%  handy{5}= plot(y_t_model(5,:)','m');
-%  handy_pred{5}= plot(YPred_model(5,:)','m-*');
-% %end
-% 
-% % for i =1:dim_x
-% %  handy_pred{i}= plot(YPred(i,:)','-*');
-% % end
-% xlabel('Time step $k$','Interpreter','latex')
-% legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},handy{4},handy_pred{4},handy{5},handy_pred{5}],...
-%         '$y_1(k)$','$y_1$-pred$(k)$','$y_2(k)$','$y_2$-pred$(k)$','$y_3(k)$','$y_3$-pred$(k)$','$y_4(k)$','$y_4$-pred$(k)$','$y_5(k)$','$y_5$-pred$(k)$','Interpreter','latex');
-%     ax = gca;
-%     ax.FontSize = 12;
-%     %set(gcf, 'Position',  [50, 50, 800, 400])
-%     ax = gca;
-%     outerpos = ax.OuterPosition;
-%     ti = ax.TightInset;
-%     left = outerpos(1) + ti(1);
-%     bottom = outerpos(2) + ti(2);
-%     ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
-%     ax_height = outerpos(4) - ti(2) - ti(4);
-%     ax.Position = [left bottom ax_width ax_height];
-%     
+figure 
+hold on
+box on;
+%for i =1:dim_x
+ handy{1}= plot(y_t_model(1,:)','r');
+ handy_pred{1}= plot(YPred_model(1,:)','-*r');
+ handy{2}= plot(y_t_model(2,:)','k');
+ handy_pred{2}= plot(YPred_model(2,:)','-*k');
+ handy{3}= plot(y_t_model(3,:)','b');
+ handy_pred{3}= plot(YPred_model(3,:)','-*b');
+ handy{4}= plot(y_t_model(4,:)','g');
+ handy_pred{4}= plot(YPred_model(4,:)','-*g');
+ handy{5}= plot(y_t_model(5,:)','m');
+ handy_pred{5}= plot(YPred_model(5,:)','m-*');
+%end
+
+% for i =1:dim_x
+%  handy_pred{i}= plot(YPred(i,:)','-*');
+% end
+xlabel('Time step $k$','Interpreter','latex')
+legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},handy{4},handy_pred{4},handy{5},handy_pred{5}],...
+        '$y_1(k)$','$y_1$-pred$(k)$','$y_2(k)$','$y_2$-pred$(k)$','$y_3(k)$','$y_3$-pred$(k)$','$y_4(k)$','$y_4$-pred$(k)$','$y_5(k)$','$y_5$-pred$(k)$','Interpreter','latex');
+    ax = gca;
+    ax.FontSize = 12;
+    %set(gcf, 'Position',  [50, 50, 800, 400])
+    ax = gca;
+    outerpos = ax.OuterPosition;
+    ti = ax.TightInset;
+    left = outerpos(1) + ti(1);
+    bottom = outerpos(2) + ti(2);
+    ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+    ax_height = outerpos(4) - ti(2) - ti(4);
+    ax.Position = [left bottom ax_width ax_height];
+    
     %legend([handy{1},handy{2},handy{3},handy{4},handy{5}],...
 %        'y1','y2','y3','y4','y5','Location','northwest');
         
@@ -198,3 +199,30 @@ legend([han_yt2ref,han_yt2ref_model],'ZonoPC $|| y(k) - r_y(k) ||$','MPC $|| y(k
     ax_height = outerpos(4) - ti(2) - ti(4);
     ax.Position = [left bottom ax_width ax_height];
  
+%%---------------------------------------------------------------------
+%constrain on y2
+
+figure 
+hold on
+box on;
+hand_y_t= plot(y_t(2,:),'b*-');
+
+hand_y_t_model= plot(y_t_model(2,:),'r+-');
+hand_YPred_t=plot(YPred(2,:),'b+-');
+
+handcon = plot(intc.inf(2)*ones(size(y_t(2,:))),'k--');
+handcon = plot(intc.sup(2)*ones(size(y_t(2,:))),'k--');
+axis([0,40 ,min(min(y_t(2,:)),intc.sup(2))-1, intc.sup(2)+1]);
+xlabel('Time step $k$','Interpreter','latex')
+legend([hand_y_t,hand_YPred_t,hand_y_t_model,handcon],'ZonoPC $y_2(k)$','ZonoPC $y_2$-pred$(k)$','MPC $y_2(k)$','constraint','Interpreter','latex');
+ax = gca;
+ax.FontSize = 12;
+%set(gcf, 'Position',  [50, 50, 800, 400])
+ax = gca;
+outerpos = ax.OuterPosition;
+ti = ax.TightInset;
+left = outerpos(1) + ti(1);
+bottom = outerpos(2) + ti(2);
+ax_width = outerpos(3) - ti(1) - ti(3)-0.01;
+ax_height = outerpos(4) - ti(2) - ti(4);
+ax.Position = [left bottom ax_width ax_height];

@@ -208,7 +208,7 @@ for timesteps = 1:maxsteps
     alpha_w_2 = sdpvar(1,N+1);
     sinf = sdpvar(5*ones(1,N+1),ones(1,N+1));
     ssup = sdpvar(5*ones(1,N+1),ones(1,N+1));
-    R={};
+%    R={};
     R{1} = zonotope([y_t(:,timesteps)]);
     
     Constraints = [y_t(:,timesteps) == y{1}];%,...
@@ -295,7 +295,7 @@ for timesteps = 1:maxsteps
         Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref)+ (u{i}-uref)'*Qu*(u{i}-uref);
     end
 %    Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref);
-    options = sdpsettings('verbose',0,'solver','mosek');
+    options = sdpsettings('verbose',0,'solver','gurobi');  % gurobi
     Problem = optimize(Constraints,Cost,options)
     Objective = double(Cost);
     uPred(timesteps) = double(u{1})
@@ -332,7 +332,7 @@ for timesteps = 1:maxsteps
 
     uPred_ = double(u{1}) + double(alpha_u(1))*U.generators;
     
-    uPred_final(timesteps) = uPred_;  
+    uPred_final(timesteps) = uPred_;
     w_point = randPoint(W);
     v_point = randPoint(V);
     %take prev v

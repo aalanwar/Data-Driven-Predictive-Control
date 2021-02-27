@@ -1,0 +1,107 @@
+
+% The system description is xk+1=Axk+Buk+Ewk,yk=Cxk
+A = [-1 -4 0 0 0; 4 -1 0 0 0; 0 0 -3 1 0; 0 0 -1 -3 0; 0 0 0 0 -2];
+B_ss = ones(5,1);
+C = [1,0,0,0,0];
+D = 0;
+% define continuous time system
+sys_c = ss(A,B_ss,C,D);
+% convert to discrete system
+samplingtime = 0.05;
+sys_d = c2d(sys_c,samplingtime);
+A = sys_d.A;
+B = sys_d.B;
+
+dim_x = 5;
+C = eye(5);
+E = eye(5);
+
+wfac=0.01;
+vfac = 0.002;
+Qy = 1e3*eye(5); %define output cost matrix
+Qu = 0.001*eye(1);%control cost matrix
+
+uref = 8;    
+ref = inv(eye(5)-sys_d.A)*sys_d.B*uref;
+
+% Open loop mini-max solution
+
+N = 3;
+U = sdpvar(N,1);
+W = sdpvar(N,5);
+V = sdpvar(N,5);
+x = sdpvar(5,1);
+
+Vw = wfac*ones(5,1);
+Vw = [Vw'; -Vw'];
+Pw = Polyhedron('V', Vw);
+%plot(P1)
+Pw.minHRep;
+Pw.H;
+Pw.He;
+
+test = [0;0;0;0;0];
+W_Constraints = [Pw.A * test <= Pw.b; Pw.Ae * test == Pw.be]
+
+
+Vv = vfac*ones(5,1);
+Vv = [Vv'; -Vv'];
+Pv = Polyhedron('V', Vv);
+%plot(P1)
+Pv.minHRep;
+Pv.H;
+Pv.He;
+
+test = [0;0;0;0;0];
+V_Constraints = [Pv.A * test <= Pv.b; Pv.Ae * test == Pv.be]
+
+
+Y = [];
+xk = x;
+for k = 1:N
+ xk = A*xk + B*U(k)+E*W(k,:)';
+ Y = [Y; C*xk + V(k,:)'];
+end
+
+F = [kron(ones(N,1),[-10;1.9;-10;-10;-10]) <= Y <= kron(ones(N,1),[10;10;10;10;10]), kron(ones(N,1),-32) <= U <= kron(ones(N,1),46)];
+objective = norm(Y-kron(ones(N,1),ref),2)*Qy(1) + norm(U-kron(ones(N,1),uref),2)*Qu(1);
+
+G = []; 
+for k = 1:N
+    G = [G, blkdiag(Pw.A,Pv.A) * [W(k,:)'; V(k,:)'] <= [Pw.b; Pv.b], blkdiag(Pw.Ae,Pv.Ae) * [W(k,:)'; V(k,:)'] == [Pw.be;Pv.be]];
+end
+
+[Frobust,h] = robustify(F + G,objective,[],[W;V]);
+
+xk = [-2;4;3;-2.5;5.5];
+uk = [];
+Y = [-2;4;3;-2.5;5.5];
+ops = sdpsettings;
+for i = 1:100
+    optimize([Frobust, x == xk(:,end)],h,ops);
+    xk = [xk A*xk(:,end) + B*value(U(1)) + E*wfac*(-1+2*rand(1)*ones(5,1))];
+    Y = [Y, C*xk(:,end) + vfac*(-1+2*rand(1)*ones(5,1))];
+    uk = [uk value(U(1))];
+end
+
+Cost_rob_ol_tot=0;
+Cost_rob_ol=[];
+for i = 1:100
+    Cost_rob_ol = [Cost_rob_ol, (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref)];
+    Cost_rob_ol_tot = Cost_rob_ol_tot + (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref);
+end
+Cost_rob_ol_tot
+
+figure(1)
+%plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
+plot([Y]')
+hold on, plot(kron(ones(1,100),ref)')
+figure(2)
+%plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
+plot([Y]')
+hold on, plot(kron(ones(1,100),ref)')
+hold on, plot(kron(ones(1,100),[-10;1.9;-10;-10;-10])') 
+hold on, plot(kron(ones(1,100),[10;10;10;10;10])') 
+
+
+

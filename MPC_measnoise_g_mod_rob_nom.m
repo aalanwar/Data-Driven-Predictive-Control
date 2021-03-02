@@ -31,7 +31,7 @@ ref = inv(eye(5)-sys_d.A)*sys_d.B*uref;
 %X0 = zonotope([ones(dim_x,1),0.1*diag(ones(dim_x,1))]);
 %U = zonotope([8,0.0001]);
 X0 = zonotope([ref-2,25*diag(ones(dim_x,1))]);
-y0 = randPoint(X0);
+y0 = [-2;4;3;-2.5;5.5];%randPoint(X0);
 U = zonotope([uref-1,20-1]);
 
 %noise zontope W
@@ -168,7 +168,7 @@ t = 1;
 
 %y0 = [-1.9;2.55;3.5;1.9;4.3];
 
-maxsteps = 100;
+maxsteps = 40;
 chosedtimestep = 10;
 for timesteps = 1:maxsteps
     if timesteps == 1
@@ -273,7 +273,7 @@ for timesteps = 1:maxsteps
         Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref)+ (u{i}-uref)'*Qu*(u{i}-uref);
     end
 %    Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref);
-    options = sdpsettings('verbose',0,'solver','gurobi');
+    options = sdpsettings('verbose',0,'solver','mosek');
     Problem = optimize(Constraints,Cost,options)
     Objective = double(Cost);
     uPred(timesteps) = double(u{1})
@@ -342,7 +342,7 @@ for timesteps = 1:maxsteps
         Cost_model = Cost_model + (y_model{i+1}-ref)'*Qy*(y_model{i+1}-ref)+ (u_model{i}-uref)'*Qu*(u_model{i}-uref);
     end
 %    Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref);
-    options = sdpsettings('verbose',0,'solver','gurobi');
+    options = sdpsettings('verbose',0,'solver','mosek');
     Problem = optimize(Constraints,Cost_model,options)
     Objective = double(Cost_model);
     uPred_model(timesteps) = double(u_model{1})
@@ -380,7 +380,7 @@ for timesteps = 1:maxsteps
         Cost_model_nom = Cost_model_nom + (y_model_nom{i+1}-ref)'*Qy*(y_model_nom{i+1}-ref)+ (u_model_nom{i}-uref)'*Qu*(u_model_nom{i}-uref);
     end
 %    Cost = Cost + (y{i+1}-ref)'*Qy*(y{i+1}-ref);
-    options = sdpsettings('verbose',0,'solver','gurobi');
+    options = sdpsettings('verbose',0,'solver','mosek');
     Problem = optimize(Constraints,Cost_model_nom,options)
     Objective = double(Cost_model_nom);
     uPred_model_nom(timesteps) = double(u_model_nom{1})

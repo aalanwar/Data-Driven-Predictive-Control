@@ -24,6 +24,11 @@ Qu = 0.001*eye(1);%control cost matrix
 uref = 8;    
 ref = inv(eye(5)-sys_d.A)*sys_d.B*uref;
 
+y_lb = [-10;2;-10;-10;-10]; %[-2;2;1;-2.5;3];
+y_ub = [10;10;10;10;10]; %[2;4;4;3;6];
+y0 = [-2;4;3;-2.5;5.5];
+
+
 % Open loop mini-max solution
 
 N = 3;
@@ -63,7 +68,7 @@ for k = 1:N
  Y = [Y; C*xk + V(k,:)'];
 end
 
-F = [kron(ones(N,1),[-10;1.9;-10;-10;-10]) <= Y <= kron(ones(N,1),[10;10;10;10;10]), kron(ones(N,1),-32) <= U <= kron(ones(N,1),46)];
+F = [kron(ones(N,1),y_lb) <= Y <= kron(ones(N,1),y_ub), kron(ones(N,1),-32) <= U <= kron(ones(N,1),46)];
 objective = norm(Y-kron(ones(N,1),ref),2)*Qy(1) + norm(U-kron(ones(N,1),uref),2)*Qu(1);
 
 G = []; 
@@ -73,9 +78,9 @@ end
 
 [Frobust,h] = robustify(F + G,objective,[],[W;V]);
 
-xk = [-2;4;3;-2.5;5.5];
+xk = y0;
 uk = [];
-Y = [-2;4;3;-2.5;5.5];
+Y = y0;
 ops = sdpsettings;
 for i = 1:100
     optimize([Frobust, x == xk(:,end)],h,ops);
@@ -100,8 +105,8 @@ figure(2)
 %plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
 plot([Y]')
 hold on, plot(kron(ones(1,100),ref)')
-hold on, plot(kron(ones(1,100),[-10;1.9;-10;-10;-10])') 
-hold on, plot(kron(ones(1,100),[10;10;10;10;10])') 
+hold on, plot(kron(ones(1,100),y_lb)') 
+hold on, plot(kron(ones(1,100),y_ub)') 
 
 
 

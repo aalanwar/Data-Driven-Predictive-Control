@@ -1,3 +1,4 @@
+rand('seed',4500);
 
 % The system description is xk+1=Axk+Buk+Ewk,yk=Cxk
 A = [-1 -4 0 0 0; 4 -1 0 0 0; 0 0 -3 1 0; 0 0 -1 -3 0; 0 0 0 0 -2];
@@ -82,7 +83,7 @@ xk = y0;
 uk = [];
 Y = y0;
 ops = sdpsettings;
-for i = 1:100
+for i = 1:40
     optimize([Frobust, x == xk(:,end)],h,ops);
     xk = [xk A*xk(:,end) + B*value(U(1)) + E*wfac*(-1+2*rand(1)*ones(5,1))];
     Y = [Y, C*xk(:,end) + vfac*(-1+2*rand(1)*ones(5,1))];
@@ -91,7 +92,7 @@ end
 
 Cost_rob_ol_tot=0;
 Cost_rob_ol=[];
-for i = 1:100
+for i = 1:40
     Cost_rob_ol = [Cost_rob_ol, (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref)];
     Cost_rob_ol_tot = Cost_rob_ol_tot + (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref);
 end

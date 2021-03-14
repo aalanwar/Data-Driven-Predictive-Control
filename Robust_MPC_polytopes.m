@@ -95,6 +95,7 @@ Cost_rob_ol=[];
 for i = 1:40
     Cost_rob_ol = [Cost_rob_ol, (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref)];
     Cost_rob_ol_tot = Cost_rob_ol_tot + (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref);
+    yt2ref_poly(i) = norm(Y(:,i)-ref,2);
 end
 Cost_rob_ol_tot
 
@@ -109,5 +110,5 @@ hold on, plot(kron(ones(1,100),ref)')
 hold on, plot(kron(ones(1,100),y_lb)') 
 hold on, plot(kron(ones(1,100),y_ub)') 
 
-
+save('workspaces\poly');
 

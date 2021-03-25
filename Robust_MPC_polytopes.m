@@ -1,3 +1,26 @@
+% ZPC: run RMPC with model using polytopes
+% 
+%
+% Inputs:
+%    none
+%
+% Outputs:
+%    saved workspace
+%
+% Example: 
+%
+% See also: ---
+
+% Author:       Yvonne Stürz 
+% Written:      25-March-2021 
+% Last update:  ---
+% Last revision:---
+
+%------------- BEGIN CODE --------------
+
+
+clear all
+close all
 rand('seed',4500);
 
 % The system description is xk+1=Axk+Buk+Ewk,yk=Cxk
@@ -32,7 +55,7 @@ y0 = [-2;4;3;-2.5;5.5];
 
 % Open loop mini-max solution
 
-N = 3;
+N = 2;
 U = sdpvar(N,1);
 W = sdpvar(N,5);
 V = sdpvar(N,5);
@@ -83,7 +106,8 @@ xk = y0;
 uk = [];
 Y = y0;
 ops = sdpsettings;
-for i = 1:40
+maxsteps = 80;
+for i = 1:maxsteps
     optimize([Frobust, x == xk(:,end)],h,ops);
     xk = [xk A*xk(:,end) + B*value(U(1)) + E*wfac*(-1+2*rand(1)*ones(5,1))];
     Y = [Y, C*xk(:,end) + vfac*(-1+2*rand(1)*ones(5,1))];
@@ -92,23 +116,23 @@ end
 
 Cost_rob_ol_tot=0;
 Cost_rob_ol=[];
-for i = 1:40
+for i = 1:maxsteps
     Cost_rob_ol = [Cost_rob_ol, (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref)];
     Cost_rob_ol_tot = Cost_rob_ol_tot + (Y(:,i+1)-ref)'*Qy*(Y(:,i+1)-ref)+ (uk(:,i)-uref)'*Qu*(uk(:,i)-uref);
     yt2ref_poly(i) = norm(Y(:,i)-ref,2);
 end
 Cost_rob_ol_tot
 
-figure(1)
-%plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
-plot([Y]')
-hold on, plot(kron(ones(1,100),ref)')
-figure(2)
-%plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
-plot([Y]')
-hold on, plot(kron(ones(1,100),ref)')
-hold on, plot(kron(ones(1,100),y_lb)') 
-hold on, plot(kron(ones(1,100),y_ub)') 
+% figure(1)
+% %plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
+% plot([Y]')
+% hold on, plot(kron(ones(1,100),ref)')
+% figure(2)
+% %plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
+% plot([Y]')
+% hold on, plot(kron(ones(1,100),ref)')
+% hold on, plot(kron(ones(1,100),y_lb)') 
+% hold on, plot(kron(ones(1,100),y_ub)') 
 
 save('workspaces\poly');
 

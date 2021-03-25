@@ -33,7 +33,7 @@ for plotRun=1:length(projectedDims3d)
         %         end
     end
     % handC=plot(consSet,projectedDims{plotRun},'k');
-    legend([handR,haldy_t,haldy_Pred],'Reachable set $\hat{\mathcal{R}}_k$','System trajectory $y(k)$','$y$-pred$(k)$','Interpreter','latex')
+    legend([handR,haldy_t,haldy_Pred],'Reachable set $\hat{\mathcal{R}}_t$','System trajectory $y(t)$','$y$-pred$(t)$','Interpreter','latex')
     % label plot
     %xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
     %ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
@@ -71,7 +71,7 @@ for plotRun=1:length(projectedDims)
         %         end
     end
     % handC=plot(consSet,projectedDims{plotRun},'k');
-    legend([handR,haldy_t,haldy_Pred],'Reachable set $\hat{\mathcal{R}}_k$','System trajectory $y(k)$','$y$-pred$(k)$','Interpreter','latex')
+    legend([handR,haldy_t,haldy_Pred],'Reachable set $\hat{\mathcal{R}}_t$','System trajectory $y(t)$','$y$-pred$(t)$','Interpreter','latex')
     % label plot
     %xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
     %ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
@@ -105,8 +105,8 @@ han_pred_model=plot(uPred_model,'r+-');
 
 han_uref=plot(uref*ones(size(uPred)),'k-');
 ax = gca;
-xlabel('Time step $k$','Interpreter','latex')
-legend([han_pred,han_pred_model,han_pred_poly,han_uref],'ZPC $u^*(k)$','RMPC-zono $u^*(k)$','RMPC-poly $u^*(k)$','Reference input $r_u(k)$','Interpreter','latex')
+xlabel('Time step $t$','Interpreter','latex')
+legend([han_pred,han_pred_model,han_pred_poly,han_uref],'ZPC $u^*(t)$','RMPC-zono $u^*(t)$','RMPC-poly $u^*(t)$','Reference input $r_u(t)$','Interpreter','latex')
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])
 ax = gca;
@@ -134,7 +134,7 @@ for plotRun=1:length(projectedDims)
         %         end
     end
     % handC=plot(consSet,projectedDims{plotRun},'k');
-    legend([handR,haldy_t],'Reachable set $\hat{\mathcal{R}}_k$','$y$-pred$(k)$','Interpreter','latex')
+    legend([handR,haldy_t],'Reachable set $\hat{\mathcal{R}}_t$','$y$-pred$(t)$','Interpreter','latex')
     % label plot
     %xlabel(['x_{',num2str(projectedDims{plotRun}(1)),'}']);
     %ylabel(['x_{',num2str(projectedDims{plotRun}(2)),'}']);
@@ -176,9 +176,9 @@ handy_pred{5}= plot(YPred(5,:)','m-*');
 % end
 %ylim([-2.7,5.3])
 xlim([0,80])
-xlabel('Time step $k$','Interpreter','latex')
+xlabel('Time step $t$','Interpreter','latex')
 legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},handy{4},handy_pred{4},handy{5},handy_pred{5}],...
-    '$y_1(k)$','$y_1$-pred$(k)$','$y_2(k)$','$y_2$-pred$(k)$','$y_3(k)$','$y_3$-pred$(k)$','$y_4(k)$','$y_4$-pred$(k)$','$y_5(k)$','$y_5$-pred$(k)$','Interpreter','latex');
+    '$y_1(t)$','$y_1$-pred$(t)$','$y_2(t)$','$y_2$-pred$(t)$','$y_3(t)$','$y_3$-pred$(t)$','$y_4(t)$','$y_4$-pred$(t)$','$y_5(t)$','$y_5$-pred$(t)$','Interpreter','latex');
 ax = gca;
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])
@@ -214,9 +214,9 @@ ax.Position = [left bottom ax_width ax_height];
 % % for i =1:dim_x
 % %  handy_pred{i}= plot(YPred(i,:)','-*');
 % % end
-% xlabel('Time step $k$','Interpreter','latex')
+% xlabel('Time step $t$','Interpreter','latex')
 % legend([handy{1},handy_pred{1},handy{2},handy_pred{2},handy{3},handy_pred{3},handy{4},handy_pred{4},handy{5},handy_pred{5}],...
-%     '$y_1(k)$','$y_1$-pred$(k)$','$y_2(k)$','$y_2$-pred$(k)$','$y_3(k)$','$y_3$-pred$(k)$','$y_4(k)$','$y_4$-pred$(k)$','$y_5(k)$','$y_5$-pred$(k)$','Interpreter','latex');
+%     '$y_1(t)$','$y_1$-pred$(t)$','$y_2(t)$','$y_2$-pred$(t)$','$y_3(t)$','$y_3$-pred$(t)$','$y_4(t)$','$y_4$-pred$(t)$','$y_5(t)$','$y_5$-pred$(t)$','Interpreter','latex');
 % ax = gca;
 % ax.FontSize = 12;
 % %set(gcf, 'Position',  [50, 50, 800, 400])
@@ -240,8 +240,8 @@ han_yt2ref_poly=plot(yt2ref_poly,'r-');
 han_yt2ref_model=plot(yt2ref_model,'r+-');
 han_yt2ref=plot(yt2ref,'b*-');
 %ylim([0,2.5])
-xlabel('Time step $k$','Interpreter','latex')
-legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC $|| y(k) - r_y(k) ||$','RMPC-zono $|| y(k) - r_y(k) ||$','RMPC-poly $|| y(k) - r_y(k) ||$','Interpreter','latex')
+xlabel('Time step $t$','Interpreter','latex')
+legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC $|| y(t) - r_y(t) ||$','RMPC-zono $|| y(t) - r_y(t) ||$','RMPC-poly $|| y(t) - r_y(t) ||$','Interpreter','latex')
 ax = gca;
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])
@@ -263,7 +263,7 @@ han_yt2ref_poly=plot(Cost_rob_ol,'r-');
 han_yt2ref_model=plot(Cost_model_vec,'r+-');
 han_yt2ref=plot(Cost_vec,'b*-');
 %ylim([0,3000])
-xlabel('Time step $k$','Interpreter','latex')
+xlabel('Time step $t$','Interpreter','latex')
 legend([han_yt2ref,han_yt2ref_model,han_yt2ref_poly],'ZPC cost','RMPC-zono cost','RMPC-poly cost','Interpreter','latex')
 ax = gca;
 ax.FontSize = 19;
@@ -281,19 +281,19 @@ ax.Position = [left bottom ax_width ax_height];
 
 
 
-figure('Renderer', 'painters', 'Position', [10 10 700 700]);
+figure('Renderer', 'painters', 'Position', [10 10 700 800]);
 hold on
 box on;
 hand_y_t= plot(y_t(2,:),'b*-');
-
+hand_y_poly= plot(Y(2,:),'r-');
 hand_y_t_model= plot(y_t_model(2,:),'r+-');
 hand_YPred_t=plot(YPred(2,:),'b+-');
 
 handcon = plot(intc.inf(2)*ones(size(y_t(2,:))),'k--');
 handcon = plot(intc.sup(2)*ones(size(y_t(2,:))),'k--');
 axis([0,40 ,min(min(y_t(2,:)),intc.sup(2))-1, intc.sup(2)+1]);
-xlabel('Time step $k$','Interpreter','latex')
-legend([hand_y_t,hand_YPred_t,hand_y_t_model,handcon],'ZPC $y_2(k)$','ZPC $y_2$-pred$(k)$','RMPC-zono $y_2(k)$','constraint','Interpreter','latex');
+xlabel('Time step $t$','Interpreter','latex')
+legend([hand_y_t,hand_YPred_t,hand_y_t_model,hand_y_poly,handcon],'ZPC $y_2(t)$','ZPC $y_2$-pred$(t)$','RMPC-zono $y_2(t)$','RMPC-poly $y_2(t)$','constraint','Interpreter','latex');
 ax = gca;
 ax.FontSize = 19;
 %set(gcf, 'Position',  [50, 50, 800, 400])

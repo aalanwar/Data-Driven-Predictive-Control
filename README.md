@@ -4,7 +4,7 @@
 This repo cotains the code for our paper:<br /> 
 [1] Amr Alanwar*, Yvonne Stürz*, Karl Johansson "Robust Data-Driven Predictive Control using Reachability Analysis" <br />
 <br /> 
-Note that portion of this code is from CORA toolbox and from Felix Gruber paper at [link](https://ieeexplore.ieee.org/abstract/document/9029873?casa_token=xXAk3DQmXVAAAAAA:zs6rKlIrZ0n5m80ijTv8HK6ubYqigNabOQRwy2mswZGqln5KqapPX0GRTUOFK0CcD2ynAlzQBgU) 
+Note that portion of this code is from CORA toolbox and from Felix Gruber paper at [link](https://ieeexplore.ieee.org/abstract/document/9029873?casa_token=xXAk3DQmXVAAAAAA:zs6rKlIrZ0n5m80ijTv8HK6ubYqigNabOQRwy2mswZGqln5KqapPX0GRTUOFK0CcD2ynAlzQBgU/) 
 <br /> 
 <br /> 
 We present a robust data-driven control scheme for unknown linear systems with a bounded process and measurement noise. Instead of depending on a system model as in traditional predictive control, a controller utilizing a data-driven reachable region is proposed. The data-driven reachable regions are based on a matrix zonotope recursion and are computed based on only noisy input-output data of the system's trajectory. We assume measurement and process noise which are contained in bounded sets. While we assume knowledge of these bounds, no knowledge about the statistical properties of the noise is assumed. Our proposed scheme guarantees robust constraint satisfaction under measurement and process noise, which is essential in safety-critical applications.<br />

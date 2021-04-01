@@ -23,9 +23,10 @@ Ack: Note that portion of this code is from CORA toolbox and from Felix Gruber, 
 ## Running 
 1- Download [MPT](https://www.mpt3.org) and install [mosek](https://www.mosek.com/products/academic-licenses/) toolboxs.<br />
 2- Add MPT folder and subfolders to the Matlab path.  <br />
-3- run ZPC.m.<br />
-4- run Robust_MPC_polytopes.m.<br />
-5- run plotPolyZono.m <br />
+3- Add the whole folder of this repo and subfolders to the Matlab path.  <br />
+4- run ZPC.m.<br />
+5- run Robust_MPC_polytopes.m.<br />
+6- run plotPolyZono.m <br />
 
 Our paper Bibtex is as follows:<br />
 ```

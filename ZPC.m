@@ -179,7 +179,8 @@ Qy = 1e3*eye(5);
 Qu = 0.001*eye(1);
 
 
-
+execTimeZPC=[];
+execTimeRMPC=[];
 % ZPC number of time steps
 maxsteps = 80;
 % chosen time step for plotting 
@@ -196,7 +197,7 @@ for timesteps = 1:maxsteps
     % sdpvar variables
     u = sdpvar(1*ones(1,N),ones(1,N));
     y = sdpvar(5*ones(1,N+1),ones(1,N+1));
-    alpha_u = sdpvar*ones(1,N);
+    alpha_u = sdpvar(1,N);
     sinf = sdpvar(5*ones(1,N+1),ones(1,N+1));
     ssup = sdpvar(5*ones(1,N+1),ones(1,N+1));
     R={};
@@ -243,7 +244,9 @@ for timesteps = 1:maxsteps
     end
     %solve ZPC
     options = sdpsettings('verbose',0,'solver','mosek');
+    tic
     Problem = optimize(Constraints,Cost,options)
+    execTimeZPC=[execTimeZPC,toc];
     Objective = double(Cost);
     uPred(timesteps) = double(u{1})
     YPred(:,timesteps+1) = double(y{2});
@@ -266,8 +269,8 @@ for timesteps = 1:maxsteps
 	
 	
     %% ZPC given the model (RMPC-zono)
-    % Contro					
-    alpha_u = sdpvar*ones(1,N);
+    % Control					
+    alpha_u = sdpvar(1,N);
     sinf = sdpvar(5*ones(1,N+1),ones(1,N+1));
     ssup = sdpvar(5*ones(1,N+1),ones(1,N+1));
     R={};
@@ -315,7 +318,9 @@ for timesteps = 1:maxsteps
         Cost_model = Cost_model + (y_model{i+1}-ref)'*Qy*(y_model{i+1}-ref)+ (u_model{i}-uref)'*Qu*(u_model{i}-uref);
     end
     options = sdpsettings('verbose',0,'solver','mosek');
+    tic
     Problem = optimize(Constraints,Cost_model,options)
+    execTimeRMPC=[execTimeRMPC,toc];
     Objective = double(Cost_model);
     uPred_model(timesteps) = double(u_model{1});
     YPred_model(:,timesteps+1) = double(y_model{2});
@@ -346,6 +351,10 @@ for i=1:timesteps
     Cost_vec(i) = (y_t(:,i+1)-ref)'*Qy*(y_t(:,i+1)-ref)+ (uPred(:,i)-uref)'*Qu*(uPred(:,i)-uref);
     Cost = Cost + Cost_vec(i);
 end
+meanZPCtime= mean(execTimeZPC)
+stdZPCtime= std(execTimeZPC)
+meanRMPCtime= mean(execTimeRMPC)
+stdRMPCtime= std(execTimeRMPC)
 
 %save the workspace
 save('workspaces\ZPC');

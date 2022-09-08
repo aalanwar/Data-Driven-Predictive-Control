@@ -100,15 +100,20 @@ for k = 1:N
     G = [G, blkdiag(Pw.A,Pv.A) * [W(k,:)'; V(k,:)'] <= [Pw.b; Pv.b], blkdiag(Pw.Ae,Pv.Ae) * [W(k,:)'; V(k,:)'] == [Pw.be;Pv.be]];
 end
 
+
 [Frobust,h] = robustify(F + G,objective,[],[W;V]);
+
 
 xk = y0;
 uk = [];
 Y = y0;
 ops = sdpsettings;
 maxsteps = 80;
+execTime=[];
 for i = 1:maxsteps
+    tic
     optimize([Frobust, x == xk(:,end)],h,ops);
+    execTime=[execTime toc];
     xk = [xk A*xk(:,end) + B*value(U(1)) + E*wfac*(-1+2*rand(1)*ones(5,1))];
     Y = [Y, C*xk(:,end) + vfac*(-1+2*rand(1)*ones(5,1))];
     uk = [uk value(U(1))];
@@ -122,7 +127,8 @@ for i = 1:maxsteps
     yt2ref_poly(i) = norm(Y(:,i)-ref,2);
 end
 Cost_rob_ol_tot
-
+meanExecTime=mean(execTime)
+stdExecTime= std(execTime)
 % figure(1)
 % %plot([C*xk  + vfac*(-1+2*rand(1)*ones(5,1))]')
 % plot([Y]')

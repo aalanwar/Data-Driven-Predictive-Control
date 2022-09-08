@@ -28,6 +28,11 @@ Ack: Note that portion of this code is from CORA toolbox and from Felix Gruber, 
 5- run Robust_MPC_polytopes.m.<br />
 6- run plotPolyZono.m <br />
 
+
+## Ack
+We acknowledge the efforts by Paul George (UWaterloo) in fixing one Bug in the code. Many thanks!
+
+
 Our paper Bibtex is as follows:<br />
 ```
 @article{alanwar2022robust,

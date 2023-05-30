@@ -22,7 +22,6 @@ width=500
 We present a robust data-driven predictive control approach for unknown nonlinear systems in the presence of bounded process and measurement noise. By using the past noisy input-output data in the learning phase, we propose a novel method to over-approximate reachable sets of an unknown nonlinear system. Then, we propose a data-driven predictive control approach to compute safe and robust control policies from noisy online data. The constraints are guaranteed in the control phase with robust safety margins through the effective use of the predicted output reachable set obtained in the learning phase.   <br />
 <br /> 
 <br />
-Ack: Note that portion of this code is from CORA toolbox and from Felix Gruber, and Matthias Althoff "Scalable Robust Model Predictive Control for Linear Sampled-Data Systems"
 <br /> 
 
 ## Running 
@@ -45,6 +44,7 @@ Ack: Note that portion of this code is from CORA toolbox and from Felix Gruber, 
 <br />
 
 ## Ack
+Note that portion of this code is from CORA toolbox and from Felix Gruber, and Matthias Althoff "Scalable Robust Model Predictive Control for Linear Sampled-Data Systems"
 We acknowledge the efforts by Paul George (UWaterloo) in fixing one Bug in the code. Many thanks!
 
 

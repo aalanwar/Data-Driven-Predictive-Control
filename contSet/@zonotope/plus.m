@@ -55,9 +55,9 @@ end
 %Is summand a zonotope?
 if strcmp('zonotope',class(summand))
     %Calculate minkowski sum
-    Z.Z(:,1)=Z.Z(:,1)+summand.Z(:,1);
-    Z.Z(:,(end+1):(end+length(summand.Z(1,2:end)))) = summand.Z(:,2:end);
-    %Z.Z=[Z.Z(:,1)+summand.Z(:,1),Z.Z(:,2:end),summand.Z(:,2:end)];
+%      Z.Z(:,1)=Z.Z(:,1)+summand.Z(:,1);
+%      Z.Z(:,(end+1):(end+length(summand.Z(1,2:end)))) = summand.Z(:,2:end);
+    Z.Z=[Z.Z(:,1)+summand.Z(:,1),Z.Z(:,2:end),summand.Z(:,2:end)];
     
 %is summand a vector?
 elseif isnumeric(summand)

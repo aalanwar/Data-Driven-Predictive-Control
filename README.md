@@ -27,6 +27,7 @@ We present a robust data-driven predictive control approach for unknown nonlinea
 ## Running 
 ### paper [1] <br />
 <br />
+Note: Remove any version of CORA toolboxes from the Matlab path before starting. 
 1- Download [MPT](https://www.mpt3.org) and install [mosek](https://www.mosek.com/products/academic-licenses/) toolboxs.<br />
 2- Add MPT folder and subfolders to the Matlab path.  <br />
 3- Add the whole folder of this repo and subfolders to the Matlab path.  <br />

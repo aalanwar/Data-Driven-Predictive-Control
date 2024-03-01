@@ -24,6 +24,10 @@ We present a robust data-driven predictive control approach for unknown nonlinea
 <br />
 <br /> 
 
+## ECC 2022 talk
+[![Seminar](https://img.youtube.com/vi/7y4maPyA3xo/0.jpg)](https://www.youtube.com/watch?v=7y4maPyA3xo)
+
+
 ## Running 
 Note: Remove any version of CORA toolboxes from the Matlab path before starting. <br /> <br />
 ### paper [1] <br />

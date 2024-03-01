@@ -1,7 +1,14 @@
 ## Robust Data-Driven Predictive Control using Reachability Analysis
 <br /> 
 <br /> 
-This repo cotains the code for our two papers:<br /> 
+
+## ECC 2022 talk
+[![Seminar](https://img.youtube.com/vi/7y4maPyA3xo/0.jpg)](https://www.youtube.com/watch?v=7y4maPyA3xo)
+
+<br /> 
+<br /> 
+
+This repo contains the code for our two papers:<br /> 
 [1] Amr Alanwar*, Yvonne Stürz*, Karl Johansson "Robust Data-Driven Predictive Control using Reachability Analysis" European Journal of Control <br />
 <br /> 
 <br /> 
@@ -24,8 +31,7 @@ We present a robust data-driven predictive control approach for unknown nonlinea
 <br />
 <br /> 
 
-## ECC 2022 talk
-[![Seminar](https://img.youtube.com/vi/7y4maPyA3xo/0.jpg)](https://www.youtube.com/watch?v=7y4maPyA3xo)
+
 
 
 ## Running 
